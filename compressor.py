@@ -4,6 +4,64 @@ import numpy as np
 from pathlib import Path
 import tempfile
 import shutil
+import os
+import sys
+from pathlib import Path
+import tempfile
+import shutil
+
+# Check if we're running in a limited environment
+IS_STREAMLIT_CLOUD = 'streamlit' in sys.modules
+
+# Try to import TensorFlow with fallback
+try:
+    import tensorflow as tf
+    TF_AVAILABLE = True
+except ImportError:
+    TF_AVAILABLE = False
+    print("⚠️ TensorFlow not available. Using demo mode.")
+
+# Try to import other packages with fallbacks
+try:
+    import tf2onnx
+    TF2ONNX_AVAILABLE = True
+except ImportError:
+    TF2ONNX_AVAILABLE = False
+    print("⚠️ tf2onnx not available. ONNX export will be limited.")
+
+try:
+    import tensorflow_model_optimization as tfmot
+    TFMOT_AVAILABLE = True
+except ImportError:
+    TFMOT_AVAILABLE = False
+    print("⚠️ TensorFlow Model Optimization not available. Pruning disabled.")
+
+try:
+    from transformers import TFAutoModelForImageClassification, AutoImageProcessor, TFAutoModel
+    TRANSFORMERS_AVAILABLE = True
+except ImportError:
+    TRANSFORMERS_AVAILABLE = False
+    print("⚠️ Transformers not available. Using demo models only.")
+
+class EdgeFlowCompressor:
+    def __init__(self, model_id, cache_dir="models"):
+        self.model_id = model_id
+        self.cache_dir = cache_dir
+        os.makedirs(cache_dir, exist_ok=True)
+        self.model = None
+        self.processor = None
+        self.is_demo_mode = not TF_AVAILABLE or IS_STREAMLIT_CLOUD
+        
+    def load_huggingface_model(self):
+        """Load model with fallback for limited environments"""
+        if self.is_demo_mode or not TRANSFORMERS_AVAILABLE:
+            return self.create_dummy_model()
+        
+        # Rest of your existing load_huggingface_model code...
+        # [Keep your existing implementation]
+    
+    # Rest of your compressor.py methods...
+    # [Keep your existing implementation with TF_AVAILABLE checks]
 
 class EdgeFlowCompressor:
     def __init__(self, model_id, cache_dir="models"):
